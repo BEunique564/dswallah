@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>DSWallah — Admin Panel</title>
+<meta name="robots" content="noindex, nofollow"/>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#06060f;--s1:#0e0e1c;--s2:#16162a;--s3:#1e1e33;
+  --accent:#f0a500;--green:#10b981;--red:#ef4444;--blue:#4f9eff;
+  --text:#f0eefa;--text2:#9896b8;--text3:#6b6994;
+  --border:rgba(255,255,255,0.06);--border2:rgba(255,255,255,0.1);
+  --d:'Bebas Neue',sans-serif;--b:'Plus Jakarta Sans',sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:var(--b);min-height:100vh}
+
+/* LOGIN SCREEN */
+.login-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:2rem}
+.login-box{background:var(--s1);border:1px solid var(--border2);border-radius:20px;padding:2.5rem;width:100%;max-width:360px;text-align:center}
+.login-logo{font-family:var(--d);font-size:2rem;margin-bottom:.25rem}
+.login-logo span{color:var(--accent)}
+.login-sub{font-size:.8rem;color:var(--text3);margin-bottom:2rem}
+.form-group{margin-bottom:1rem;text-align:left}
+.form-label{font-size:.75rem;font-weight:700;color:var(--text2);margin-bottom:.4rem;display:block}
+.form-input{width:100%;background:var(--s2);border:1px solid var(--border);color:var(--text);font-family:var(--b);font-size:.88rem;padding:.8rem 1rem;border-radius:10px;outline:none;transition:border .2s}
+.form-input:focus{border-color:rgba(240,165,0,.4)}
+.login-btn{width:100%;background:var(--accent);color:#000;font-family:var(--b);font-size:.9rem;font-weight:800;padding:.9rem;border-radius:12px;border:none;cursor:pointer;margin-top:.5rem;transition:.2s}
+.login-btn:hover{background:#d4920a}
+.err-msg{font-size:.78rem;color:var(--red);margin-top:.5rem;text-align:center;min-height:1rem}
+
+/* ADMIN PANEL */
+.admin-panel{display:none;flex-direction:column;min-height:100vh}
+.admin-panel.active{display:flex}
+.topbar{background:rgba(6,6,15,.95);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:0 1.5rem;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
+.topbar-logo{font-family:var(--d);font-size:1.5rem}.topbar-logo span{color:var(--accent)}
+.topbar-right{display:flex;gap:.75rem;align-items:center}
+.btn{font-family:var(--b);font-weight:700;border:none;cursor:pointer;transition:all .2s;border-radius:8px;font-size:.78rem;padding:.4rem .9rem}
+.btn-ghost{background:var(--s2);color:var(--text2);border:1px solid var(--border)}
+.btn-ghost:hover{color:var(--text)}
+.btn-danger{background:rgba(239,68,68,.1);color:var(--red);border:1px solid rgba(239,68,68,.2)}
+
+.admin-body{flex:1;padding:2rem;max-width:1400px;width:100%;margin:0 auto}
+
+/* STATS ROW */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:2rem}
+.stat-card{background:var(--s1);border:1px solid var(--border);border-radius:14px;padding:1.25rem}
+.stat-label{font-size:.7rem;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:.4rem}
+.stat-value{font-family:var(--d);font-size:2rem}
+.stat-value.gold{color:var(--accent)}
+.stat-value.green{color:var(--green)}
+.stat-value.red{color:var(--red)}
+.stat-value.blue{color:var(--blue)}
+
+/* TOOLBAR */
+.toolbar{display:flex;gap:.75rem;margin-bottom:1.5rem;flex-wrap:wrap;align-items:center}
+.search-box{flex:1;min-width:200px;background:var(--s1);border:1px solid var(--border);color:var(--text);font-family:var(--b);font-size:.85rem;padding:.65rem 1rem;border-radius:10px;outline:none}
+.search-box:focus{border-color:rgba(240,165,0,.3)}
+.filter-select{background:var(--s1);border:1px solid var(--border);color:var(--text2);font-family:var(--b);font-size:.78rem;padding:.65rem .9rem;border-radius:10px;outline:none;cursor:pointer}
+.refresh-btn{background:var(--s2);border:1px solid var(--border);color:var(--text2);font-family:var(--b);font-size:.78rem;font-weight:700;padding:.65rem 1rem;border-radius:10px;cursor:pointer;transition:.2s;white-space:nowrap}
+.refresh-btn:hover{color:var(--text);border-color:var(--border2)}
+
+/* TABLE */
+.table-wrap{background:var(--s1);border:1px solid var(--border);border-radius:16px;overflow:hidden;overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:900px}
+thead{background:var(--s2)}
+th{padding:.85rem 1rem;text-align:left;font-size:.7rem;font-weight:700;color:var(--text3);letter-spacing:.5px;text-transform:uppercase;border-bottom:1px solid var(--border)}
+td{padding:.9rem 1rem;font-size:.82rem;border-bottom:1px solid var(--border);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(255,255,255,.015)}
+
+.avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2,#ff6b35));display:flex;align-items:center;justify-content:center;font-family:var(--d);font-size:.9rem;color:#000;flex-shrink:0}
+.user-cell{display:flex;align-items:center;gap:.75rem}
+.user-name{font-weight:700;font-size:.83rem}
+.user-email{font-size:.72rem;color:var(--text3)}
+
+.status-pill{display:inline-flex;align-items:center;gap:.3rem;font-size:.68rem;font-weight:700;padding:.25rem .65rem;border-radius:99px;letter-spacing:.3px}
+.pill-pending{background:rgba(240,165,0,.1);color:var(--accent);border:1px solid rgba(240,165,0,.2)}
+.pill-approved{background:rgba(16,185,129,.1);color:var(--green);border:1px solid rgba(16,185,129,.2)}
+.pill-rejected{background:rgba(239,68,68,.1);color:var(--red);border:1px solid rgba(239,68,68,.2)}
+
+.ebook-pill{font-size:.65rem;font-weight:700;padding:.2rem .5rem;border-radius:6px}
+.ebook-yes{background:rgba(16,185,129,.12);color:var(--green);border:1px solid rgba(16,185,129,.2)}
+.ebook-no{background:var(--s2);color:var(--text3);border:1px solid var(--border)}
+
+.action-btns{display:flex;gap:.5rem;flex-wrap:wrap}
+.act-btn{font-family:var(--b);font-size:.7rem;font-weight:700;padding:.35rem .75rem;border-radius:7px;border:none;cursor:pointer;transition:all .18s;white-space:nowrap}
+.act-approve{background:rgba(16,185,129,.12);color:var(--green);border:1px solid rgba(16,185,129,.2)}
+.act-approve:hover{background:rgba(16,185,129,.25)}
+.act-reject{background:rgba(239,68,68,.1);color:var(--red);border:1px solid rgba(239,68,68,.2)}
+.act-reject:hover{background:rgba(239,68,68,.2)}
+.act-ebook{background:rgba(79,158,255,.1);color:var(--blue);border:1px solid rgba(79,158,255,.2)}
+.act-ebook:hover{background:rgba(79,158,255,.2)}
+.act-ss{background:rgba(240,165,0,.08);color:var(--accent);border:1px solid rgba(240,165,0,.15)}
+.act-ss:hover{background:rgba(240,165,0,.15)}
+
+/* EMPTY / LOADING */
+.empty-state{text-align:center;padding:4rem 2rem;color:var(--text3)}
+.empty-icon{font-size:3rem;margin-bottom:1rem}
+.loading-row td{text-align:center;padding:3rem;color:var(--text3)}
+
+/* MODAL */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(8px);z-index:200;display:none;align-items:center;justify-content:center;padding:1rem}
+.overlay.active{display:flex}
+.modal{background:var(--s1);border:1px solid var(--border2);border-radius:20px;width:100%;max-width:440px;padding:2rem}
+.modal-title{font-family:var(--d);font-size:1.6rem;margin-bottom:1.25rem}
+.modal-body{font-size:.85rem;color:var(--text2);line-height:1.7;margin-bottom:1.5rem}
+.modal-body strong{color:var(--text)}
+.modal-actions{display:flex;gap:.75rem}
+.modal-btn{flex:1;font-family:var(--b);font-weight:800;font-size:.85rem;padding:.85rem;border-radius:12px;border:none;cursor:pointer;transition:.2s}
+.modal-cancel{background:var(--s2);color:var(--text2)}
+.modal-cancel:hover{color:var(--text)}
+.modal-confirm-approve{background:var(--green);color:#fff}
+.modal-confirm-approve:hover{opacity:.9}
+.modal-confirm-reject{background:var(--red);color:#fff}
+.modal-confirm-reject:hover{opacity:.9}
+
+/* EBOOK TOGGLE in modal */
+.ebook-toggle-row{display:flex;align-items:center;justify-content:space-between;background:var(--s2);border:1px solid var(--border);border-radius:12px;padding:.9rem 1rem;margin:1rem 0}
+.ebook-toggle-label{font-size:.83rem;font-weight:600}
+.toggle{position:relative;width:44px;height:24px;cursor:pointer}
+.toggle input{opacity:0;width:0;height:0}
+.toggle-slider{position:absolute;inset:0;background:var(--s3);border-radius:99px;transition:.3s}
+.toggle-slider::before{content:'';position:absolute;width:18px;height:18px;left:3px;top:3px;background:var(--text3);border-radius:50%;transition:.3s}
+.toggle input:checked + .toggle-slider{background:var(--blue)}
+.toggle input:checked + .toggle-slider::before{transform:translateX(20px);background:#fff}
+
+/* SCREENSHOT MODAL */
+.ss-modal{max-width:600px}
+.ss-modal img{width:100%;border-radius:12px;margin:1rem 0}
+
+/* TOAST */
+.toast{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%) translateY(80px);background:var(--s3);border:1px solid var(--border2);color:var(--text);font-size:.85rem;font-weight:600;padding:.8rem 1.5rem;border-radius:12px;z-index:999;transition:transform .35s cubic-bezier(.34,1.56,.64,1)}
+.toast.show{transform:translateX(-50%) translateY(0)}
+
+/* SPINNER */
+.spinner{width:16px;height:16px;border:2px solid rgba(255,255,255,.2);border-top-color:#fff;border-radius:50%;animation:spin .8s linear infinite;display:inline-block}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+@media(max-width:768px){
+  .stats-row{grid-template-columns:repeat(2,1fr)}
+  .admin-body{padding:1rem}
+  .toolbar{flex-direction:column;align-items:stretch}
+  .search-box{min-width:0}
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN SCREEN -->
+<div class="login-screen" id="loginScreen">
+  <div class="login-box">
+    <div class="login-logo">DS<span>Wallah</span></div>
+    <div class="login-sub">Admin Panel — Restricted Access</div>
+    <div class="form-group">
+      <label class="form-label">Admin Key</label>
+      <input class="form-input" type="password" id="adminKeyInput" placeholder="Enter admin key" onkeydown="if(event.key==='Enter')doAdminLogin()"/>
+    </div>
+    <button class="login-btn" onclick="doAdminLogin()">Access Panel</button>
+    <div class="err-msg" id="loginErr"></div>
+  </div>
+</div>
+
+<!-- ADMIN PANEL -->
+<div class="admin-panel" id="adminPanel">
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <span class="topbar-logo">DS<span>Wallah</span> Admin</span>
+    <div class="topbar-right">
+      <span id="lastRefresh" style="font-size:.72rem;color:var(--text3)"></span>
+      <a href="index.html" class="btn btn-ghost">← Site</a>
+      <button class="btn btn-danger" onclick="adminLogout()">Logout</button>
+    </div>
+  </div>
+
+  <div class="admin-body">
+
+    <!-- STATS -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-label">Total Enrollments</div>
+        <div class="stat-value gold" id="statTotal">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Pending Review</div>
+        <div class="stat-value blue" id="statPending">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Approved</div>
+        <div class="stat-value green" id="statApproved">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">eBook Access</div>
+        <div class="stat-value green" id="statEbook">—</div>
+      </div>
+    </div>
+
+    <!-- TOOLBAR -->
+    <div class="toolbar">
+      <input class="search-box" id="searchBox" placeholder="🔍 Search by name, email, course..." oninput="renderTable()"/>
+      <select class="filter-select" id="statusFilter" onchange="renderTable()">
+        <option value="">All Status</option>
+        <option value="Pending">⏳ Pending</option>
+        <option value="Approved">✅ Approved</option>
+        <option value="Rejected">❌ Rejected</option>
+      </select>
+      <select class="filter-select" id="ebookFilter" onchange="renderTable()">
+        <option value="">All eBook</option>
+        <option value="Yes">📚 Has eBook</option>
+        <option value="No">🚫 No eBook</option>
+      </select>
+      <button class="refresh-btn" onclick="loadData()">↻ Refresh</button>
+    </div>
+
+    <!-- TABLE -->
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Student</th>
+            <th>Course</th>
+            <th>UPI Ref</th>
+            <th>Date</th>
+            <th>Status</th>
+            <th>eBook</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody">
+          <tr class="loading-row"><td colspan="8"><span class="spinner"></span> Loading...</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+</div>
+
+<!-- CONFIRM MODAL -->
+<div class="overlay" id="confirmOverlay">
+  <div class="modal">
+    <div class="modal-title" id="confirmTitle">Confirm Action</div>
+    <div class="modal-body" id="confirmBody"></div>
+    <div class="ebook-toggle-row" id="ebookToggleRow">
+      <span class="ebook-toggle-label">📚 eBook Access Bhi Do?</span>
+      <label class="toggle">
+        <input type="checkbox" id="ebookToggle" checked/>
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+    <div class="modal-actions">
+      <button class="modal-btn modal-cancel" onclick="closeModal('confirmOverlay')">Cancel</button>
+      <button class="modal-btn" id="confirmActionBtn" onclick="executeAction()">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<!-- SCREENSHOT MODAL -->
+<div class="overlay" id="ssOverlay">
+  <div class="modal ss-modal">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem">
+      <div style="font-family:var(--d);font-size:1.4rem">Payment Screenshot</div>
+      <button onclick="closeModal('ssOverlay')" style="background:var(--s2);border:1px solid var(--border);color:var(--text2);width:32px;height:32px;border-radius:8px;cursor:pointer;font-size:.9rem">✕</button>
+    </div>
+    <img id="ssImage" src="" alt="Payment Screenshot" style="width:100%;border-radius:12px;margin-top:.75rem"/>
+    <div style="font-size:.75rem;color:var(--text3);margin-top:.5rem;text-align:center" id="ssCaption"></div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbwOZqeIFRfqnhq1bJC0Y7MNkXpcBqcwng4e07gPXE-hZAdgidez9TQijWo58UiNxMaqNQ/exec';
+let   ADMIN_KEY = '';
+let   allRows   = [];
+let   pendingAction = null; // { row, newStatus }
+
+// ── UTILS ─────────────────────────────────────────────────────
+function showToast(msg, dur=3500) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), dur);
+}
+function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+function openModal(id)  { document.getElementById(id).classList.add('active'); }
+
+function gasCall(params) {
+  return new Promise((res, rej) => {
+    const cb = '_a_' + Math.random().toString(36).slice(2);
+    const qs = new URLSearchParams({...params, callback: cb}).toString();
+    const s  = document.createElement('script');
+    let done = false;
+    const tm = setTimeout(() => { if(!done){done=true;cleanup();rej(new Error('Timeout'));}}, 15000);
+    const cleanup = () => { clearTimeout(tm); delete window[cb]; s.parentNode&&s.parentNode.removeChild(s); };
+    window[cb] = d => { if(!done){done=true;cleanup();res(d);} };
+    s.onerror  = () => { if(!done){done=true;cleanup();rej(new Error('Network error'));} };
+    s.src = GAS_URL + '?' + qs;
+    document.head.appendChild(s);
+  });
+}
+
+// ── AUTH ──────────────────────────────────────────────────────
+function doAdminLogin() {
+  const key = document.getElementById('adminKeyInput').value.trim();
+  if (!key) { document.getElementById('loginErr').textContent = 'Key daalo'; return; }
+  ADMIN_KEY = key;
+  // Verify by calling getAll
+  gasCall({ action:'getAll', adminKey:key }).then(res => {
+    if (!res.success) {
+      document.getElementById('loginErr').textContent = '❌ Wrong admin key';
+      ADMIN_KEY = '';
+    } else {
+      sessionStorage.setItem('dsw_admin_key', key);
+      document.getElementById('loginScreen').style.display = 'none';
+      document.getElementById('adminPanel').classList.add('active');
+      allRows = res.rows || [];
+      updateStats();
+      renderTable();
+      document.getElementById('lastRefresh').textContent = 'Last: ' + new Date().toLocaleTimeString('en-IN');
+    }
+  }).catch(e => {
+    document.getElementById('loginErr').textContent = '❌ ' + e.message;
+  });
+}
+
+function adminLogout() {
+  sessionStorage.removeItem('dsw_admin_key');
+  ADMIN_KEY = '';
+  document.getElementById('adminPanel').classList.remove('active');
+  document.getElementById('loginScreen').style.display = 'flex';
+  document.getElementById('adminKeyInput').value = '';
+}
+
+// ── LOAD DATA ──────────────────────────────────────────────────
+async function loadData() {
+  document.getElementById('tableBody').innerHTML =
+    '<tr class="loading-row"><td colspan="8"><span class="spinner"></span> Loading...</td></tr>';
+  try {
+    const res = await gasCall({ action:'getAll', adminKey:ADMIN_KEY });
+    if (!res.success) throw new Error(res.msg||'Failed');
+    allRows = res.rows || [];
+    updateStats();
+    renderTable();
+    document.getElementById('lastRefresh').textContent = 'Last: ' + new Date().toLocaleTimeString('en-IN');
+  } catch(e) {
+    document.getElementById('tableBody').innerHTML =
+      '<tr class="loading-row"><td colspan="8">❌ ' + e.message + '</td></tr>';
+    showToast('❌ ' + e.message);
+  }
+}
+
+// ── STATS ──────────────────────────────────────────────────────
+function updateStats() {
+  const total    = allRows.length;
+  const pending  = allRows.filter(r => r.status === 'Pending').length;
+  const approved = allRows.filter(r => r.status === 'Approved').length;
+  const ebook    = allRows.filter(r => r.ebookAccess === 'Yes').length;
+  document.getElementById('statTotal').textContent    = total;
+  document.getElementById('statPending').textContent  = pending;
+  document.getElementById('statApproved').textContent = approved;
+  document.getElementById('statEbook').textContent    = ebook;
+}
+
+// ── TABLE RENDER ──────────────────────────────────────────────
+function renderTable() {
+  const search  = document.getElementById('searchBox').value.toLowerCase();
+  const statusF = document.getElementById('statusFilter').value;
+  const ebookF  = document.getElementById('ebookFilter').value;
+
+  let filtered = allRows.filter(r => {
+    const matchSearch = !search ||
+      (r.name||'').toLowerCase().includes(search) ||
+      (r.email||'').toLowerCase().includes(search) ||
+      (r.course||'').toLowerCase().includes(search) ||
+      (r.upiRef||'').toLowerCase().includes(search);
+    const matchStatus = !statusF || r.status === statusF;
+    const matchEbook  = !ebookF  || r.ebookAccess === ebookF;
+    return matchSearch && matchStatus && matchEbook;
+  });
+
+  const tbody = document.getElementById('tableBody');
+  if (!filtered.length) {
+    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:3rem;color:var(--text3)">📭 Koi enrollment nahi mili</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = filtered.map((r,i) => {
+    const initial = (r.name||r.email||'?')[0].toUpperCase();
+    const statusClass = r.status==='Approved'?'pill-approved':r.status==='Rejected'?'pill-rejected':'pill-pending';
+    const statusIcon  = r.status==='Approved'?'✅':r.status==='Rejected'?'❌':'⏳';
+    const ebookClass  = r.ebookAccess==='Yes'?'ebook-yes':'ebook-no';
+    const ebookText   = r.ebookAccess==='Yes'?'📚 Yes':'—';
+
+    const isPending   = r.status === 'Pending';
+    const isApproved  = r.status === 'Approved';
+    const hasEbook    = r.ebookAccess === 'Yes';
+    const hasScreenshot = r.screenshot && r.screenshot.startsWith('http');
+
+    return `<tr>
+      <td style="color:var(--text3);font-size:.75rem">${filtered.length - i}</td>
+      <td>
+        <div class="user-cell">
+          <div class="avatar">${initial}</div>
+          <div>
+            <div class="user-name">${escHtml(r.name||'—')}</div>
+            <div class="user-email">${escHtml(r.email||'—')}</div>
+          </div>
+        </div>
+      </td>
+      <td style="font-size:.8rem">${escHtml(r.course||'—')}</td>
+      <td style="font-family:monospace;font-size:.75rem;color:var(--text2)">${escHtml(r.upiRef||'—')}</td>
+      <td style="font-size:.72rem;color:var(--text3)">${escHtml(r.timestamp||'—')}</td>
+      <td><span class="status-pill ${statusClass}">${statusIcon} ${r.status}</span></td>
+      <td><span class="ebook-pill ${ebookClass}">${ebookText}</span></td>
+      <td>
+        <div class="action-btns">
+          ${isPending ? `<button class="act-btn act-approve" onclick="confirmAction(${r.row},'Approved')">✅ Approve</button>` : ''}
+          ${isPending ? `<button class="act-btn act-reject"  onclick="confirmAction(${r.row},'Rejected')">❌ Reject</button>` : ''}
+          ${isApproved && !hasEbook ? `<button class="act-btn act-ebook" onclick="giveEbookOnly(${r.row})">📚 Give eBook</button>` : ''}
+          ${isApproved && hasEbook  ? `<button class="act-btn act-ebook" onclick="revokeEbook(${r.row})">🚫 Revoke eBook</button>` : ''}
+          ${hasScreenshot ? `<button class="act-btn act-ss" onclick="viewScreenshot('${escAttr(r.screenshot)}','${escAttr(r.name||r.email)}')">📸 SS</button>` : ''}
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function escHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function escAttr(s) { return String(s).replace(/'/g,'&#39;').replace(/"/g,'&quot;'); }
+
+// ── ACTIONS ────────────────────────────────────────────────────
+function confirmAction(row, newStatus) {
+  const r = allRows.find(x => x.row === row);
+  if (!r) return;
+  pendingAction = { row, newStatus };
+
+  document.getElementById('confirmTitle').textContent =
+    newStatus === 'Approved' ? '✅ Approve Enrollment' : '❌ Reject Enrollment';
+  document.getElementById('confirmBody').innerHTML =
+    `<strong>${escHtml(r.name||r.email)}</strong> ko <strong>${escHtml(r.course)}</strong> ke liye ${newStatus==='Approved'?'approve':'reject'} karna chahte ho?`;
+
+  const ebookRow = document.getElementById('ebookToggleRow');
+  ebookRow.style.display = newStatus === 'Approved' ? 'flex' : 'none';
+  document.getElementById('ebookToggle').checked = true;
+
+  const confirmBtn = document.getElementById('confirmActionBtn');
+  confirmBtn.className = 'modal-btn ' + (newStatus==='Approved'?'modal-confirm-approve':'modal-confirm-reject');
+  confirmBtn.textContent = newStatus==='Approved' ? '✅ Approve' : '❌ Reject';
+
+  openModal('confirmOverlay');
+}
+
+async function executeAction() {
+  if (!pendingAction) return;
+  const { row, newStatus } = pendingAction;
+  const giveEbook = (newStatus==='Approved' && document.getElementById('ebookToggle').checked) ? 'true' : 'false';
+
+  const btn = document.getElementById('confirmActionBtn');
+  btn.innerHTML = '<span class="spinner"></span>';
+  btn.disabled  = true;
+
+  try {
+    const res = await gasCall({ action:'updateStatus', adminKey:ADMIN_KEY, row, status:newStatus, giveEbook });
+    if (!res.success) throw new Error(res.msg||'Failed');
+    showToast('✅ ' + res.msg);
+    closeModal('confirmOverlay');
+    await loadData();
+  } catch(e) {
+    showToast('❌ ' + e.message);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = newStatus==='Approved' ? '✅ Approve' : '❌ Reject';
+  }
+}
+
+async function giveEbookOnly(row) {
+  try {
+    const res = await gasCall({ action:'updateStatus', adminKey:ADMIN_KEY, row, status:'Approved', giveEbook:'true' });
+    if (!res.success) throw new Error(res.msg||'Failed');
+    showToast('📚 eBook access de diya!');
+    await loadData();
+  } catch(e) { showToast('❌ ' + e.message); }
+}
+
+async function revokeEbook(row) {
+  if (!confirm('eBook access revoke karna chahte ho?')) return;
+  try {
+    const res = await gasCall({ action:'updateStatus', adminKey:ADMIN_KEY, row, status:'Approved', giveEbook:'false' });
+    if (!res.success) throw new Error(res.msg||'Failed');
+    showToast('🚫 eBook access revoke kiya!');
+    await loadData();
+  } catch(e) { showToast('❌ ' + e.message); }
+}
+
+function viewScreenshot(url, name) {
+  document.getElementById('ssImage').src  = url;
+  document.getElementById('ssCaption').textContent = name + ' ka payment screenshot';
+  openModal('ssOverlay');
+}
+
+// ── INIT ──────────────────────────────────────────────────────
+window.addEventListener('load', () => {
+  const saved = sessionStorage.getItem('dsw_admin_key');
+  if (saved) {
+    ADMIN_KEY = saved;
+    document.getElementById('adminKeyInput').value = saved;
+    doAdminLogin();
+  }
+  document.querySelectorAll('.overlay').forEach(o => {
+    o.addEventListener('click', e => { if(e.target===o) o.classList.remove('active'); });
+  });
+  // Auto-refresh every 60 seconds
+  setInterval(() => {
+    if (ADMIN_KEY && document.getElementById('adminPanel').classList.contains('active')) loadData();
+  }, 60000);
+});
+</script>
+</body>
+</html>

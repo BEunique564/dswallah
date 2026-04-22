@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>DSWallah — Data Science Seekho</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Plus+Jakarta+Sans:ital,wght@0,400;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet"/>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<style>
+:root{
+  --bg:#06060f;--s1:#0e0e1c;--s2:#16162a;--s3:#1e1e33;
+  --accent:#f0a500;--accent2:#ff6b35;--green:#10b981;--blue:#4f9eff;
+  --text:#f0eefa;--text2:#9896b8;--text3:#6b6994;
+  --border:rgba(255,255,255,0.06);--border2:rgba(255,255,255,0.1);
+  --d:'Bebas Neue',sans-serif;--b:'Plus Jakarta Sans',sans-serif;
+  --r:16px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:var(--b);min-height:100vh;overflow-x:hidden}
+
+/* NOISE TEXTURE */
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");pointer-events:none;z-index:0;opacity:.4}
+
+/* NAV */
+.nav{background:rgba(6,6,15,.9);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:0 2rem;height:64px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.logo{font-family:var(--d);font-size:1.8rem;color:var(--text);text-decoration:none;letter-spacing:1px}
+.logo span{color:var(--accent)}
+.nav-actions{display:flex;gap:.75rem;align-items:center}
+#navUserName{font-size:.82rem;color:var(--text2)}
+.btn{font-family:var(--b);font-weight:700;border:none;cursor:pointer;transition:all .2s;border-radius:10px}
+.btn-sm{font-size:.78rem;padding:.4rem .9rem}
+.btn-ghost{background:var(--s2);color:var(--text2);border:1px solid var(--border)}
+.btn-ghost:hover{border-color:var(--border2);color:var(--text)}
+.btn-accent{background:var(--accent);color:#000;font-size:.82rem;padding:.45rem 1.1rem}
+.btn-accent:hover{background:#d4920a;transform:translateY(-1px)}
+
+/* HERO */
+.hero{position:relative;padding:7rem 2rem 5rem;text-align:center;overflow:hidden}
+.hero-glow{position:absolute;top:-100px;left:50%;transform:translateX(-50%);width:700px;height:500px;background:radial-gradient(ellipse,rgba(240,165,0,.12) 0%,transparent 70%);pointer-events:none}
+.hero-tag{display:inline-flex;align-items:center;gap:.5rem;background:rgba(240,165,0,.1);border:1px solid rgba(240,165,0,.2);color:var(--accent);font-size:.75rem;font-weight:700;padding:.35rem 1rem;border-radius:99px;margin-bottom:1.5rem;letter-spacing:.5px}
+.hero h1{font-family:var(--d);font-size:clamp(3rem,8vw,6rem);line-height:.95;letter-spacing:1px;margin-bottom:1rem}
+.hero h1 span{color:var(--accent)}
+.hero p{font-size:1rem;color:var(--text2);max-width:500px;margin:0 auto 2.5rem;line-height:1.7}
+.hero-cta{display:flex;gap:1rem;justify-content:center;flex-wrap:wrap}
+.btn-hero{font-family:var(--b);font-weight:800;font-size:.95rem;padding:1rem 2.2rem;border-radius:14px;border:none;cursor:pointer;transition:all .25s}
+.btn-hero-primary{background:var(--accent);color:#000}
+.btn-hero-primary:hover{background:#d4920a;transform:translateY(-2px);box-shadow:0 8px 30px rgba(240,165,0,.3)}
+.btn-hero-sec{background:var(--s2);color:var(--text);border:1px solid var(--border2)}
+.btn-hero-sec:hover{background:var(--s3);transform:translateY(-2px)}
+
+/* STATS */
+.stats{display:flex;gap:0;justify-content:center;border-top:1px solid var(--border);border-bottom:1px solid var(--border);background:var(--s1)}
+.stat{flex:1;max-width:200px;padding:1.5rem 1rem;text-align:center;border-right:1px solid var(--border)}
+.stat:last-child{border-right:none}
+.stat-num{font-family:var(--d);font-size:2.2rem;color:var(--accent)}
+.stat-lbl{font-size:.72rem;color:var(--text3);letter-spacing:.5px;text-transform:uppercase;margin-top:.2rem}
+
+/* SECTION */
+.section{padding:5rem 2rem;max-width:1100px;margin:0 auto}
+.section-tag{font-size:.72rem;font-weight:700;color:var(--accent);letter-spacing:2px;text-transform:uppercase;margin-bottom:.75rem}
+.section-title{font-family:var(--d);font-size:clamp(2rem,5vw,3.2rem);line-height:1;margin-bottom:1rem}
+.section-sub{color:var(--text2);font-size:.92rem;line-height:1.7;max-width:560px}
+
+/* PROGRAMS */
+#programs{scroll-margin-top:80px}
+.courses-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1.5rem;margin-top:3rem}
+.course-card{background:var(--s1);border:1px solid var(--border);border-radius:var(--r);padding:1.75rem;position:relative;cursor:pointer;transition:all .25s;overflow:hidden}
+.course-card::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(240,165,0,.04),transparent);opacity:0;transition:.3s}
+.course-card:hover{border-color:rgba(240,165,0,.3);transform:translateY(-3px);box-shadow:0 12px 40px rgba(0,0,0,.4)}
+.course-card:hover::before{opacity:1}
+.course-card.selected{border-color:var(--accent);background:var(--s2)}
+.course-card.selected::before{opacity:1}
+.course-badge{font-size:.65rem;font-weight:800;padding:.25rem .65rem;border-radius:6px;letter-spacing:.5px;text-transform:uppercase;display:inline-block;margin-bottom:1rem}
+.badge-hot{background:rgba(255,107,53,.15);color:var(--accent2);border:1px solid rgba(255,107,53,.25)}
+.badge-new{background:rgba(16,185,129,.12);color:var(--green);border:1px solid rgba(16,185,129,.2)}
+.badge-pro{background:rgba(79,158,255,.12);color:var(--blue);border:1px solid rgba(79,158,255,.2)}
+.course-name{font-family:var(--d);font-size:1.5rem;margin-bottom:.5rem}
+.course-desc{font-size:.83rem;color:var(--text2);line-height:1.6;margin-bottom:1.25rem}
+.course-features{list-style:none;margin-bottom:1.5rem}
+.course-features li{font-size:.78rem;color:var(--text2);padding:.3rem 0;display:flex;align-items:center;gap:.5rem}
+.course-features li::before{content:'✓';color:var(--green);font-weight:800;font-size:.7rem}
+.course-price{display:flex;align-items:baseline;gap:.5rem;margin-bottom:1.5rem}
+.price-main{font-family:var(--d);font-size:2rem;color:var(--text)}
+.price-original{font-size:.82rem;color:var(--text3);text-decoration:line-through}
+.price-tag{font-size:.7rem;font-weight:700;background:rgba(16,185,129,.12);color:var(--green);padding:.2rem .5rem;border-radius:6px}
+.enroll-btn{width:100%;background:var(--accent);color:#000;font-family:var(--b);font-size:.85rem;font-weight:800;padding:.85rem;border-radius:12px;border:none;cursor:pointer;transition:all .2s}
+.enroll-btn:hover{background:#d4920a;transform:translateY(-1px)}
+.check-mark{position:absolute;top:1rem;right:1rem;width:24px;height:24px;background:var(--accent);border-radius:50%;display:none;align-items:center;justify-content:center;font-size:.65rem;color:#000;font-weight:800}
+.course-card.selected .check-mark{display:flex}
+
+/* MODAL OVERLAY */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(8px);z-index:200;display:none;align-items:center;justify-content:center;padding:1rem}
+.overlay.active{display:flex}
+.modal{background:var(--s1);border:1px solid var(--border2);border-radius:20px;width:100%;max-width:480px;max-height:90vh;overflow-y:auto;padding:2rem}
+.modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.75rem}
+.modal-title{font-family:var(--d);font-size:1.75rem}
+.close-btn{background:var(--s2);border:1px solid var(--border);color:var(--text2);width:34px;height:34px;border-radius:8px;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center}
+.close-btn:hover{color:var(--text);border-color:var(--border2)}
+
+/* FORM */
+.form-group{margin-bottom:1.25rem}
+.form-label{font-size:.78rem;font-weight:700;color:var(--text2);margin-bottom:.5rem;display:block;letter-spacing:.3px}
+.form-input{width:100%;background:var(--s2);border:1px solid var(--border);color:var(--text);font-family:var(--b);font-size:.88rem;padding:.8rem 1rem;border-radius:10px;outline:none;transition:border .2s}
+.form-input:focus{border-color:rgba(240,165,0,.4)}
+.form-input::placeholder{color:var(--text3)}
+select.form-input option{background:var(--s2)}
+
+/* UPI SECTION */
+.upi-box{background:var(--s2);border:1px solid var(--border);border-radius:12px;padding:1.25rem;margin-bottom:1.25rem;text-align:center}
+.upi-id{font-family:var(--d);font-size:1.4rem;color:var(--accent);letter-spacing:1px;margin:0.5rem 0}
+.upi-amount{font-size:.82rem;color:var(--text2)}
+.copy-btn{background:rgba(240,165,0,.1);border:1px solid rgba(240,165,0,.2);color:var(--accent);font-family:var(--b);font-size:.72rem;font-weight:700;padding:.3rem .75rem;border-radius:6px;cursor:pointer;margin-top:.5rem}
+.copy-btn:hover{background:rgba(240,165,0,.2)}
+.upload-zone{border:2px dashed var(--border2);border-radius:12px;padding:2rem 1rem;text-align:center;cursor:pointer;transition:all .25s;background:var(--s2);position:relative}
+.upload-zone:hover,.upload-zone.drag{border-color:rgba(240,165,0,.4);background:var(--s3)}
+.upload-zone input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.upload-icon{font-size:2rem;margin-bottom:.5rem}
+.upload-text{font-size:.82rem;color:var(--text2)}
+.upload-text strong{color:var(--text);font-size:.85rem}
+.preview-img{max-width:100%;max-height:160px;border-radius:8px;margin-top:.75rem;display:none}
+
+/* GOOGLE BTN */
+.google-btn{display:flex;align-items:center;justify-content:center;gap:.65rem;background:#fff;color:#1f1f1f;font-family:var(--b);font-size:.88rem;font-weight:700;padding:.85rem 1.5rem;border-radius:12px;cursor:pointer;border:none;box-shadow:0 2px 12px rgba(0,0,0,.2);width:100%;transition:all .2s}
+.google-btn:hover{background:#f0f0f0;transform:translateY(-1px)}
+.google-btn svg{width:20px;height:20px;flex-shrink:0}
+
+/* SUBMIT BTN */
+.submit-btn{width:100%;background:var(--accent);color:#000;font-family:var(--b);font-size:.9rem;font-weight:800;padding:.95rem;border-radius:12px;border:none;cursor:pointer;transition:all .2s;margin-top:.5rem}
+.submit-btn:hover{background:#d4920a;transform:translateY(-1px)}
+.submit-btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+
+/* STATUS BADGES */
+.status-pill{display:inline-flex;align-items:center;gap:.4rem;font-size:.72rem;font-weight:700;padding:.3rem .75rem;border-radius:99px;margin-top:.75rem}
+.pill-pending{background:rgba(240,165,0,.1);color:var(--accent);border:1px solid rgba(240,165,0,.2)}
+.pill-approved{background:rgba(16,185,129,.1);color:var(--green);border:1px solid rgba(16,185,129,.2)}
+.pill-rejected{background:rgba(239,68,68,.1);color:#ef4444;border:1px solid rgba(239,68,68,.2)}
+
+/* TOAST */
+.toast{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%) translateY(80px);background:var(--s3);border:1px solid var(--border2);color:var(--text);font-size:.85rem;font-weight:600;padding:.8rem 1.5rem;border-radius:12px;z-index:999;transition:transform .35s cubic-bezier(.34,1.56,.64,1);white-space:nowrap}
+.toast.show{transform:translateX(-50%) translateY(0)}
+
+/* FOOTER */
+footer{background:var(--s1);border-top:1px solid var(--border);padding:2rem;text-align:center}
+footer p{font-size:.78rem;color:var(--text3)}
+footer a{color:var(--text2);text-decoration:none}
+footer a:hover{color:var(--accent)}
+
+/* LOADING SPINNER */
+.spinner{width:18px;height:18px;border:2px solid rgba(0,0,0,.2);border-top-color:#000;border-radius:50%;animation:spin .8s linear infinite;display:inline-block}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* STEP INDICATOR */
+.steps{display:flex;gap:0;margin-bottom:1.75rem;border-radius:12px;overflow:hidden;border:1px solid var(--border)}
+.step{flex:1;padding:.6rem .5rem;text-align:center;font-size:.72rem;font-weight:700;background:var(--s2);color:var(--text3);transition:.2s}
+.step.active{background:rgba(240,165,0,.12);color:var(--accent)}
+.step.done{background:rgba(16,185,129,.08);color:var(--green)}
+
+/* DIVIDER */
+.divider{display:flex;align-items:center;gap:.75rem;margin:1rem 0}
+.divider hr{flex:1;border:none;border-top:1px solid var(--border)}
+.divider span{font-size:.72rem;color:var(--text3)}
+
+@media(max-width:600px){
+  .nav{padding:0 1rem}
+  .hero{padding:5rem 1rem 3rem}
+  .stats{flex-wrap:wrap}
+  .stat{min-width:50%}
+  .courses-grid{grid-template-columns:1fr}
+  .section{padding:3rem 1rem}
+  .modal{padding:1.5rem}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <a href="#" class="logo">DS<span>Wallah</span></a>
+  <div class="nav-actions">
+    <span id="navUserName"></span>
+    <a href="Ebook.html" class="btn btn-sm btn-ghost" id="ebookNavBtn" style="display:none">📖 eBook</a>
+    <a href="dashboard.html" class="btn btn-sm btn-ghost" id="dashNavBtn" style="display:none">Dashboard</a>
+    <button class="btn btn-sm btn-ghost" id="logoutNavBtn" onclick="doLogout()" style="display:none">Sign Out</button>
+    <button class="btn btn-sm btn-accent" id="loginNavBtn" onclick="openLoginModal()">Login</button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-glow"></div>
+  <div class="hero-tag">🚀 India's Best Data Science Educator</div>
+  <h1>Data Science<br/><span>Mastery</span><br/>Seekho</h1>
+  <p>Industry-ready curriculum, live mentorship, aur job placement support ke saath Data Science mein career banao.</p>
+  <div class="hero-cta">
+    <button class="btn-hero btn-hero-primary" onclick="document.getElementById('programs').scrollIntoView()">Courses Dekho</button>
+    <button class="btn-hero btn-hero-sec" onclick="document.getElementById('programs').scrollIntoView()">Free Demo</button>
+  </div>
+</section>
+
+<!-- STATS -->
+<div class="stats">
+  <div class="stat"><div class="stat-num">4.8K+</div><div class="stat-lbl">Students</div></div>
+  <div class="stat"><div class="stat-num">97%</div><div class="stat-lbl">Placement Rate</div></div>
+  <div class="stat"><div class="stat-num">42+</div><div class="stat-lbl">Courses</div></div>
+  <div class="stat"><div class="stat-num">12+</div><div class="stat-lbl">Instructors</div></div>
+</div>
+
+<!-- PROGRAMS -->
+<section class="section" id="programs">
+  <div class="section-tag">Our Programs</div>
+  <h2 class="section-title">Apna Course<br/>Choose Karo</h2>
+  <p class="section-sub">Beginner se Advanced tak — har level ke liye structured courses with eBook access.</p>
+
+  <div class="courses-grid">
+    <!-- Course 1 -->
+    <div class="course-card" onclick="selectCourse(this,'Python for Data Science','₹1,999')" data-course="Python for Data Science" data-price="₹1,999">
+      <div class="check-mark">✓</div>
+      <span class="course-badge badge-hot">🔥 Bestseller</span>
+      <div class="course-name">Python for Data Science</div>
+      <div class="course-desc">Python basics se lekar Pandas, NumPy aur Matplotlib tak — complete foundation course.</div>
+      <ul class="course-features">
+        <li>40+ hours of video content</li>
+        <li>Hands-on projects + assignments</li>
+        <li>📚 eBook included</li>
+        <li>Certificate of completion</li>
+      </ul>
+      <div class="course-price">
+        <span class="price-main">₹1,999</span>
+        <span class="price-original">₹4,999</span>
+        <span class="price-tag">60% OFF</span>
+      </div>
+      <button class="enroll-btn" onclick="event.stopPropagation();openEnrollModal('Python for Data Science','₹1,999')">Enroll Now</button>
+    </div>
+
+    <!-- Course 2 -->
+    <div class="course-card" onclick="selectCourse(this,'ML Bootcamp','₹3,499')" data-course="ML Bootcamp" data-price="₹3,499">
+      <div class="check-mark">✓</div>
+      <span class="course-badge badge-pro">⭐ Pro</span>
+      <div class="course-name">ML Bootcamp</div>
+      <div class="course-desc">Supervised, Unsupervised learning, Neural Networks aur real-world model deployment.</div>
+      <ul class="course-features">
+        <li>80+ hours deep-dive content</li>
+        <li>5 capstone projects</li>
+        <li>📚 eBook + cheatsheets</li>
+        <li>1-on-1 mentorship sessions</li>
+      </ul>
+      <div class="course-price">
+        <span class="price-main">₹3,499</span>
+        <span class="price-original">₹8,999</span>
+        <span class="price-tag">61% OFF</span>
+      </div>
+      <button class="enroll-btn" onclick="event.stopPropagation();openEnrollModal('ML Bootcamp','₹3,499')">Enroll Now</button>
+    </div>
+
+    <!-- Course 3 -->
+    <div class="course-card" onclick="selectCourse(this,'Full Stack DS','₹5,999')" data-course="Full Stack DS" data-price="₹5,999">
+      <div class="check-mark">✓</div>
+      <span class="course-badge badge-new">✨ New</span>
+      <div class="course-name">Full Stack DS</div>
+      <div class="course-desc">Python + ML + SQL + Power BI + Deployment — complete data scientist bano.</div>
+      <ul class="course-features">
+        <li>150+ hours complete curriculum</li>
+        <li>Resume + LinkedIn review</li>
+        <li>📚 Complete eBook bundle</li>
+        <li>Job placement assistance</li>
+      </ul>
+      <div class="course-price">
+        <span class="price-main">₹5,999</span>
+        <span class="price-original">₹14,999</span>
+        <span class="price-tag">60% OFF</span>
+      </div>
+      <button class="enroll-btn" onclick="event.stopPropagation();openEnrollModal('Full Stack DS','₹5,999')">Enroll Now</button>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <p>© 2024 DSWallah. All rights reserved. | <a href="#">Privacy Policy</a> | <a href="#">Contact</a></p>
+</footer>
+
+<!-- ============ LOGIN MODAL ============ -->
+<div class="overlay" id="loginOverlay">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Sign In</span>
+      <button class="close-btn" onclick="closeModal('loginOverlay')">✕</button>
+    </div>
+    <p style="font-size:.85rem;color:var(--text2);margin-bottom:1.5rem">Google account se login karo to track your enrollments and access eBooks.</p>
+    <div id="g_id_onload"
+      data-client_id="726542698574-ar7uvgvvkdekf3kt9qghtj1cn7cotrj4.apps.googleusercontent.com"
+      data-callback="handleGoogleSignIn"
+      data-auto_prompt="false"></div>
+    <button class="google-btn" onclick="triggerGoogleAuth()">
+      <svg viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+      Continue with Google
+    </button>
+  </div>
+</div>
+
+<!-- ============ ENROLL MODAL ============ -->
+<div class="overlay" id="enrollOverlay">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="modalCourseTitle">Enroll</span>
+      <button class="close-btn" onclick="closeModal('enrollOverlay')">✕</button>
+    </div>
+
+    <!-- Step Indicator -->
+    <div class="steps">
+      <div class="step active" id="step1Ind">1. Course</div>
+      <div class="step" id="step2Ind">2. Payment</div>
+      <div class="step" id="step3Ind">3. Done</div>
+    </div>
+
+    <!-- Step 1: Login check -->
+    <div id="enrollStep1">
+      <div id="loginRequired" style="display:none;text-align:center;padding:1rem 0">
+        <div style="font-size:2.5rem;margin-bottom:1rem">🔐</div>
+        <p style="font-size:.88rem;color:var(--text2);margin-bottom:1.5rem">Enroll karne ke liye pehle Google se login karo.</p>
+        <button class="google-btn" onclick="triggerGoogleAuth()">
+          <svg viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+          Google se Login Karo
+        </button>
+      </div>
+      <div id="loggedInCourseInfo">
+        <div style="background:var(--s2);border:1px solid var(--border);border-radius:12px;padding:1rem;margin-bottom:1.25rem">
+          <div style="font-size:.75rem;color:var(--text3);margin-bottom:.25rem">Selected Course</div>
+          <div id="selectedCourseDisplay" style="font-family:var(--d);font-size:1.3rem;color:var(--accent)"></div>
+          <div id="selectedPriceDisplay" style="font-size:.82rem;color:var(--text2);margin-top:.25rem"></div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Full Name</label>
+          <input class="form-input" id="enrollName" placeholder="Tumhara full name"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input class="form-input" id="enrollEmail" readonly style="opacity:.6"/>
+        </div>
+        <button class="submit-btn" onclick="goToPaymentStep()">Continue to Payment →</button>
+      </div>
+    </div>
+
+    <!-- Step 2: Payment -->
+    <div id="enrollStep2" style="display:none">
+      <div class="upi-box">
+        <div style="font-size:.75rem;color:var(--text3)">UPI ID pe payment karo</div>
+        <div class="upi-id" id="upiIdDisplay">dswallah@upi</div>
+        <div class="upi-amount" id="upiAmountDisplay"></div>
+        <button class="copy-btn" onclick="copyUPI()">📋 Copy UPI ID</button>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">UPI Transaction ID / Reference Number *</label>
+        <input class="form-input" id="upiRef" placeholder="e.g. 234567890123"/>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Payment Screenshot Upload *</label>
+        <div class="upload-zone" id="uploadZone">
+          <input type="file" id="screenshotFile" accept="image/*" onchange="handleFileSelect(event)"/>
+          <div class="upload-icon">📸</div>
+          <div class="upload-text"><strong>Screenshot yahan drop karo</strong><br/>ya click karke upload karo</div>
+          <img class="preview-img" id="previewImg"/>
+        </div>
+      </div>
+
+      <button class="submit-btn" id="submitEnrollBtn" onclick="submitEnrollment()">
+        🚀 Submit Enrollment Request
+      </button>
+      <div style="font-size:.72rem;color:var(--text3);text-align:center;margin-top:.75rem">
+        Admin verify karega aur 24hr mein access milega
+      </div>
+    </div>
+
+    <!-- Step 3: Success -->
+    <div id="enrollStep3" style="display:none;text-align:center;padding:1rem 0">
+      <div style="font-size:3rem;margin-bottom:1rem">🎉</div>
+      <div style="font-family:var(--d);font-size:1.75rem;margin-bottom:.75rem">Request Submitted!</div>
+      <p style="font-size:.85rem;color:var(--text2);line-height:1.7;margin-bottom:1.5rem">
+        Tumhari enrollment request admin ko bhej di gayi hai.<br/>
+        <strong style="color:var(--text)">24 ghante mein</strong> email pe approval ya rejection aayega.
+      </p>
+      <div id="submittedStatus"></div>
+      <button class="submit-btn" onclick="closeModal('enrollOverlay')">Theek Hai!</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- GIS hidden div -->
+<div id="g_id_onload2"
+  data-client_id="726542698574-ar7uvgvvkdekf3kt9qghtj1cn7cotrj4.apps.googleusercontent.com"
+  data-callback="handleGoogleSignIn"
+  data-auto_prompt="false"
+  style="display:none"></div>
+
+<script>
+const GAS_URL         = 'https://script.google.com/macros/s/AKfycbwOZqeIFRfqnhq1bJC0Y7MNkXpcBqcwng4e07gPXE-hZAdgidez9TQijWo58UiNxMaqNQ/exec';
+const IMGBB_API_KEY   = 'YOUR_IMGBB_KEY'; // imgbb.com se free key lo
+const GOOGLE_CLIENT_ID= '726542698574-ar7uvgvvkdekf3kt9qghtj1cn7cotrj4.apps.googleusercontent.com';
+
+let currentUser  = null;
+let enrollCourse = '';
+let enrollPrice  = '';
+let uploadedUrl  = '';
+
+// ── UTILS ────────────────────────────────────────────────────
+function showToast(msg, dur=3000) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), dur);
+}
+
+function gasCall(params) {
+  return new Promise((res, rej) => {
+    const cb = '_cb_' + Math.random().toString(36).slice(2);
+    const qs = new URLSearchParams({...params, callback: cb}).toString();
+    const s  = document.createElement('script');
+    let done = false;
+    const tm = setTimeout(() => { if(!done){done=true;cleanup();rej(new Error('Timeout'));}}, 15000);
+    const cleanup = () => { clearTimeout(tm); delete window[cb]; s.parentNode&&s.parentNode.removeChild(s); };
+    window[cb] = d => { if(!done){done=true;cleanup();res(d);} };
+    s.onerror  = () => { if(!done){done=true;cleanup();rej(new Error('Network error'));} };
+    s.src = GAS_URL + '?' + qs;
+    document.head.appendChild(s);
+  });
+}
+
+// ── AUTH ─────────────────────────────────────────────────────
+function handleGoogleSignIn(response) {
+  try {
+    const parts   = response.credential.split('.');
+    const payload = JSON.parse(atob(parts[1].replace(/-/g,'+').replace(/_/g,'/')));
+    currentUser   = { name: payload.name, email: payload.email, picture: payload.picture };
+    sessionStorage.setItem('dsw_user', JSON.stringify(currentUser));
+    updateNavUI();
+    closeModal('loginOverlay');
+    showToast('✅ Welcome, ' + currentUser.name.split(' ')[0] + '!');
+    // If enroll modal was waiting for login
+    if (document.getElementById('enrollOverlay').classList.contains('active')) {
+      showLoggedInEnrollStep();
+    }
+  } catch(e) { showToast('❌ Login failed'); }
+}
+
+function triggerGoogleAuth() {
+  if (typeof google !== 'undefined' && google.accounts) google.accounts.id.prompt();
+}
+
+function doLogout() {
+  try { if (typeof google !== 'undefined') google.accounts.id.disableAutoSelect(); } catch(e){}
+  sessionStorage.removeItem('dsw_user');
+  currentUser = null;
+  updateNavUI();
+  showToast('Logged out!');
+}
+
+function updateNavUI() {
+  const loggedIn = !!currentUser;
+  document.getElementById('loginNavBtn').style.display    = loggedIn ? 'none' : '';
+  document.getElementById('logoutNavBtn').style.display   = loggedIn ? '' : 'none';
+  document.getElementById('dashNavBtn').style.display     = loggedIn ? '' : 'none';
+  document.getElementById('navUserName').textContent      = loggedIn ? (currentUser.name||'').split(' ')[0] : '';
+  // Check ebook access
+  if (loggedIn) {
+    gasCall({ action:'getPlans', email:currentUser.email }).then(r => {
+      document.getElementById('ebookNavBtn').style.display = (r.success && r.plans?.length) ? '' : 'none';
+    }).catch(()=>{});
+  } else {
+    document.getElementById('ebookNavBtn').style.display = 'none';
+  }
+}
+
+// ── MODAL ────────────────────────────────────────────────────
+function openModal(id) { document.getElementById(id).classList.add('active'); }
+function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+function openLoginModal() { openModal('loginOverlay'); }
+
+// ── COURSE SELECT ─────────────────────────────────────────────
+function selectCourse(card, course, price) {
+  document.querySelectorAll('.course-card').forEach(c => c.classList.remove('selected'));
+  card.classList.add('selected');
+}
+
+function openEnrollModal(course, price) {
+  enrollCourse = course;
+  enrollPrice  = price;
+  document.getElementById('modalCourseTitle').textContent = course;
+  document.getElementById('upiAmountDisplay').textContent = 'Amount: ' + price;
+  // Reset steps
+  ['enrollStep1','enrollStep2','enrollStep3'].forEach(s => document.getElementById(s).style.display='none');
+  document.getElementById('enrollStep1').style.display = 'block';
+  setStep(1);
+  document.getElementById('selectedCourseDisplay').textContent = course;
+  document.getElementById('selectedPriceDisplay').textContent  = price;
+  openModal('enrollOverlay');
+
+  if (currentUser) {
+    showLoggedInEnrollStep();
+  } else {
+    document.getElementById('loginRequired').style.display    = 'block';
+    document.getElementById('loggedInCourseInfo').style.display = 'none';
+  }
+}
+
+function showLoggedInEnrollStep() {
+  document.getElementById('loginRequired').style.display     = 'none';
+  document.getElementById('loggedInCourseInfo').style.display = 'block';
+  document.getElementById('enrollEmail').value = currentUser.email;
+  document.getElementById('enrollName').value  = currentUser.name || '';
+}
+
+function goToPaymentStep() {
+  if (!document.getElementById('enrollName').value.trim()) {
+    showToast('❗ Apna naam daalo'); return;
+  }
+  document.getElementById('enrollStep1').style.display = 'none';
+  document.getElementById('enrollStep2').style.display = 'block';
+  setStep(2);
+}
+
+function setStep(n) {
+  [1,2,3].forEach(i => {
+    const el = document.getElementById('step'+i+'Ind');
+    el.classList.remove('active','done');
+    if (i < n) el.classList.add('done');
+    else if (i === n) el.classList.add('active');
+  });
+}
+
+// ── UPI COPY ──────────────────────────────────────────────────
+function copyUPI() {
+  navigator.clipboard.writeText('dswallah@upi').then(() => showToast('✅ UPI ID copied!')).catch(()=>{});
+}
+
+// ── FILE UPLOAD ────────────────────────────────────────────────
+function handleFileSelect(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const preview = document.getElementById('previewImg');
+  preview.src = URL.createObjectURL(file);
+  preview.style.display = 'block';
+  showToast('📸 Screenshot selected!');
+}
+
+async function uploadToImgBB(file) {
+  const fd = new FormData();
+  fd.append('image', file);
+  const res  = await fetch('https://api.imgbb.com/1/upload?key=' + IMGBB_API_KEY, { method:'POST', body:fd });
+  const data = await res.json();
+  if (!data.success) throw new Error('Upload failed');
+  return data.data.url;
+}
+
+// ── SUBMIT ENROLLMENT ─────────────────────────────────────────
+async function submitEnrollment() {
+  const upiRef = document.getElementById('upiRef').value.trim();
+  const file   = document.getElementById('screenshotFile').files[0];
+
+  if (!upiRef) { showToast('❗ UPI reference number daalo'); return; }
+  if (!file)   { showToast('❗ Screenshot upload karo'); return; }
+
+  const btn = document.getElementById('submitEnrollBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Uploading...';
+
+  try {
+    // 1. Upload screenshot
+    let screenshotUrl = '';
+    try {
+      screenshotUrl = await uploadToImgBB(file);
+    } catch(e) {
+      // Fallback: use placeholder if imgbb key not set
+      screenshotUrl = 'Screenshot uploaded (ImgBB key needed)';
+    }
+
+    // 2. Submit to GAS
+    btn.innerHTML = '<span class="spinner"></span> Submitting...';
+    const res = await gasCall({
+      action:      'enroll',
+      name:        document.getElementById('enrollName').value.trim(),
+      email:       currentUser.email,
+      course:      enrollCourse,
+      upiRef:      upiRef,
+      screenshotUrl
+    });
+
+    if (!res.success) throw new Error(res.msg || 'Submission failed');
+
+    // 3. Success
+    document.getElementById('enrollStep2').style.display = 'none';
+    document.getElementById('enrollStep3').style.display = 'block';
+    setStep(3);
+    document.getElementById('submittedStatus').innerHTML =
+      '<div class="status-pill pill-pending">⏳ Pending Admin Approval</div>';
+
+  } catch(err) {
+    showToast('❌ ' + (err.message||'Error'));
+    btn.disabled = false;
+    btn.innerHTML = '🚀 Submit Enrollment Request';
+  }
+}
+
+// ── INIT ──────────────────────────────────────────────────────
+window.addEventListener('load', () => {
+  if (typeof google !== 'undefined' && google.accounts) {
+    google.accounts.id.initialize({ client_id: GOOGLE_CLIENT_ID, callback: handleGoogleSignIn });
+  }
+  const raw = sessionStorage.getItem('dsw_user');
+  if (raw) {
+    try { currentUser = JSON.parse(raw); } catch(e){}
+  }
+  updateNavUI();
+
+  // Close overlay on backdrop click
+  document.querySelectorAll('.overlay').forEach(o => {
+    o.addEventListener('click', e => { if(e.target===o) o.classList.remove('active'); });
+  });
+});
+</script>
+</body>
+</html>

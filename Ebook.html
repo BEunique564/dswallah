@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>DSWallah eBook — Student Access</title>
+<meta name="robots" content="noindex, nofollow"/>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<style>
+:root{
+  --bg:#05050a;--s1:#0e0e1c;--s2:#1a1a28;--s3:#1e1e33;
+  --accent:#f0a500;--green:#10b981;--red:#ef4444;
+  --text:#f0eefa;--text2:#9896b8;--text3:#6b6994;
+  --border:rgba(255,255,255,0.06);--border2:rgba(255,255,255,0.1);
+  --d:'Bebas Neue',sans-serif;--b:'Plus Jakarta Sans',sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:var(--b);min-height:100vh;display:flex;flex-direction:column;-webkit-user-select:none;user-select:none}
+
+/* NAV */
+.nav{background:rgba(5,5,10,.95);backdrop-filter:blur(24px);border-bottom:1px solid var(--border);padding:0 1.5rem;height:64px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
+.logo{font-family:var(--d);font-size:1.75rem;color:var(--text);text-decoration:none}.logo span{color:var(--accent)}
+.nav-right{display:flex;gap:.75rem;align-items:center}
+.btn{font-family:var(--b);font-size:.78rem;font-weight:700;padding:.4rem .9rem;border-radius:8px;cursor:pointer;border:none;transition:all .2s;text-decoration:none;display:inline-flex;align-items:center}
+.btn-ghost{background:var(--s2);color:var(--text2);border:1px solid var(--border)}
+.btn-ghost:hover{color:var(--text);border-color:var(--border2)}
+#userNameNav{font-size:.82rem;color:var(--text2)}
+
+/* STATES */
+.state{flex:1;display:none;align-items:center;justify-content:center;flex-direction:column;gap:1.5rem;padding:3rem;text-align:center}
+.state.active{display:flex}
+.state-icon{font-size:3.5rem}
+.state h2{font-family:var(--d);font-size:2.2rem}
+.state p{font-size:.9rem;color:var(--text2);max-width:440px;line-height:1.75}
+
+/* SPINNER */
+.spinner{width:44px;height:44px;border:3px solid rgba(240,165,0,.15);border-top-color:var(--accent);border-radius:50%;animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* GOOGLE BTN */
+.google-btn{display:flex;align-items:center;justify-content:center;gap:.65rem;background:#fff;color:#1f1f1f;font-family:var(--b);font-size:.9rem;font-weight:700;padding:.85rem 1.75rem;border-radius:12px;cursor:pointer;border:none;box-shadow:0 2px 16px rgba(0,0,0,.25);transition:.2s}
+.google-btn:hover{background:#f0f0f0;transform:translateY(-1px)}
+.google-btn svg{width:20px;height:20px;flex-shrink:0}
+
+/* ENROLL BTN */
+.enroll-btn{background:var(--accent);color:#000;font-family:var(--b);font-size:.9rem;font-weight:800;padding:.85rem 2rem;border-radius:12px;border:none;cursor:pointer;transition:.2s}
+.enroll-btn:hover{background:#d4920a;transform:translateY(-1px)}
+
+/* ACCESS INFO BOX */
+.access-info-box{background:var(--s1);border:1px solid var(--border);border-radius:14px;padding:1.25rem 1.75rem;display:flex;flex-direction:column;gap:.5rem;text-align:left;min-width:300px}
+.access-row{display:flex;align-items:center;gap:.6rem;font-size:.83rem;color:var(--text2)}
+.access-row strong{color:var(--text)}
+
+/* PDF VIEWER */
+.pdf-wrap{flex:1;display:none;flex-direction:column}
+.pdf-wrap.active{display:flex}
+.pdf-bar{background:var(--s2);border-bottom:1px solid var(--border);padding:.65rem 1.5rem;display:flex;align-items:center;justify-content:space-between;font-size:.8rem;color:var(--text2);flex-wrap:wrap;gap:.5rem}
+.pdf-bar-left{display:flex;align-items:center;gap:.75rem}
+.access-badge{display:inline-flex;align-items:center;gap:.4rem;background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.2);color:var(--green);font-size:.7rem;font-weight:700;padding:.25rem .7rem;border-radius:99px}
+.pdf-progress{font-size:.72rem;color:var(--text3)}
+.course-tag{display:inline-flex;align-items:center;gap:.35rem;background:rgba(240,165,0,.08);border:1px solid rgba(240,165,0,.15);color:var(--accent);font-size:.7rem;font-weight:700;padding:.25rem .65rem;border-radius:99px}
+
+#pdfPages{padding:1.5rem 1rem;display:flex;flex-direction:column;gap:12px;align-items:center;overflow-y:auto;flex:1;background:var(--bg)}
+#pdfPages canvas{max-width:100%;border-radius:6px;display:block;pointer-events:none;box-shadow:0 4px 24px rgba(0,0,0,.5)}
+#pdfStatus{color:var(--text2);font-size:.85rem;text-align:center;padding:2rem;display:flex;align-items:center;gap:.75rem}
+
+/* COURSE SELECT for ebook (if multiple courses) */
+.course-list{display:flex;flex-direction:column;gap:.5rem;width:100%;max-width:380px}
+.course-option{background:var(--s1);border:1px solid var(--border);border-radius:10px;padding:.85rem 1rem;cursor:pointer;transition:.2s;display:flex;justify-content:space-between;align-items:center}
+.course-option:hover{border-color:rgba(240,165,0,.3);background:var(--s2)}
+.course-option-name{font-weight:700;font-size:.88rem}
+.course-option-arrow{color:var(--accent);font-size:.9rem}
+
+@media(max-width:600px){.nav{padding:0 1rem}}
+</style>
+</head>
+<body>
+
+<!-- DOWNLOAD PROTECTION -->
+<script>
+document.addEventListener('contextmenu', e => e.preventDefault());
+document.addEventListener('keydown', e => {
+  if ((e.ctrlKey||e.metaKey) && ['s','p','u','a','c'].includes(e.key.toLowerCase())) e.preventDefault();
+});
+document.addEventListener('keyup', e => {
+  if (e.key === 'PrintScreen') alert('Screenshot attempt logged.');
+});
+document.addEventListener('visibilitychange', () => {
+  document.body.style.filter = document.hidden ? 'blur(20px)' : 'none';
+});
+</script>
+
+<nav class="nav">
+  <a href="index.html" class="logo">DS<span>Wallah</span></a>
+  <div class="nav-right">
+    <span id="userNameNav"></span>
+    <a href="dashboard.html" class="btn btn-ghost">Dashboard</a>
+    <button class="btn btn-ghost" id="logoutBtn" onclick="doLogout()" style="display:none">Sign Out</button>
+  </div>
+</nav>
+
+<!-- STATE: LOADING -->
+<div class="state active" id="stateLoading">
+  <div class="spinner"></div>
+  <p id="loadingMsg">Access verify ho raha hai...</p>
+</div>
+
+<!-- STATE: LOGIN -->
+<div class="state" id="stateLogin">
+  <div class="state-icon">🔐</div>
+  <h2>Sign In Required</h2>
+  <p>eBook access karne ke liye apne Google account se login karo.</p>
+  <div id="g_id_onload"
+    data-client_id="726542698574-ar7uvgvvkdekf3kt9qghtj1cn7cotrj4.apps.googleusercontent.com"
+    data-callback="handleGoogleSignIn"
+    data-auto_prompt="false"></div>
+  <button class="google-btn" onclick="triggerGoogleAuth()">
+    <svg viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+    Continue with Google
+  </button>
+</div>
+
+<!-- STATE: PENDING -->
+<div class="state" id="statePending">
+  <div class="state-icon">⏳</div>
+  <h2>Pending Approval</h2>
+  <p>Tumhari enrollment request submit ho gayi hai. Admin review karega aur <strong style="color:var(--accent)">24 ghante mein</strong> email pe update aayega.</p>
+  <div class="access-info-box" id="pendingInfoBox"></div>
+  <a href="index.html" class="enroll-btn" style="text-decoration:none">← Wapas Jao</a>
+</div>
+
+<!-- STATE: NO ACCESS -->
+<div class="state" id="stateNoAccess">
+  <div class="state-icon">🔒</div>
+  <h2>Access Nahi Mila</h2>
+  <p>Yeh eBook sirf enrolled aur approved students ke liye hai. Course enroll karo, payment karo, aur admin approval ke baad access milega.</p>
+  <button class="enroll-btn" onclick="window.location.href='index.html#programs'">Courses Dekho</button>
+</div>
+
+<!-- STATE: ERROR -->
+<div class="state" id="stateError">
+  <div class="state-icon">⚠️</div>
+  <h2>Kuch Gadbad Hui</h2>
+  <p id="errorMsg">Server se connect nahi ho paya.</p>
+  <button class="enroll-btn" onclick="window.location.reload()">Dobara Try Karo</button>
+</div>
+
+<!-- STATE: COURSE SELECT (multiple courses) -->
+<div class="state" id="stateCourseSelect">
+  <div class="state-icon">📚</div>
+  <h2>Course Choose Karo</h2>
+  <p>Tumhare paas multiple courses hain. Konsa eBook padhna hai?</p>
+  <div class="course-list" id="courseList"></div>
+</div>
+
+<!-- PDF VIEWER -->
+<div class="pdf-wrap" id="pdfWrap">
+  <div class="pdf-bar">
+    <div class="pdf-bar-left">
+      <span>📖 DSWallah eBook</span>
+      <span class="course-tag" id="courseTagBar"></span>
+    </div>
+    <div style="display:flex;align-items:center;gap:.75rem">
+      <span class="pdf-progress" id="pdfProgressText"></span>
+      <span class="access-badge" id="accessBadge">✓ Verified Access</span>
+    </div>
+  </div>
+  <div id="pdfPages">
+    <div id="pdfStatus">
+      <span class="spinner" style="width:24px;height:24px;border-width:2px"></span>
+      PDF load ho rahi hai...
+    </div>
+  </div>
+</div>
+
+<script>
+const GAS_URL          = 'https://script.google.com/macros/s/AKfycbwOZqeIFRfqnhq1bJC0Y7MNkXpcBqcwng4e07gPXE-hZAdgidez9TQijWo58UiNxMaqNQ/exec';
+const GOOGLE_CLIENT_ID = '726542698574-ar7uvgvvkdekf3kt9qghtj1cn7cotrj4.apps.googleusercontent.com';
+
+// ⬇️  Apna PDF URL daalo (Google Drive public link ya server URL)
+const PDF_URL = 'YOUR_PDF_URL_HERE';
+// e.g. 'https://drive.google.com/uc?export=download&id=FILE_ID'
+// Ya apne server pe upload karo: '/ebooks/ds-course.pdf'
+
+pdfjsLib.GlobalWorkerOptions.workerSrc =
+  'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+let _currentUser = null;
+
+// ── STATE HELPERS ─────────────────────────────────────────────
+function showState(id) {
+  ['stateLoading','stateLogin','statePending','stateNoAccess','stateError','stateCourseSelect'].forEach(s =>
+    document.getElementById(s).classList.remove('active'));
+  document.getElementById('pdfWrap').classList.remove('active');
+  if (id === 'pdf') document.getElementById('pdfWrap').classList.add('active');
+  else document.getElementById(id).classList.add('active');
+}
+
+// ── GAS CALL ──────────────────────────────────────────────────
+function gasCall(params) {
+  return new Promise((resolve, reject) => {
+    const cb = '_eb_' + Math.random().toString(36).slice(2);
+    const qs = new URLSearchParams({...params, callback: cb}).toString();
+    const s  = document.createElement('script');
+    let done = false;
+    const t  = setTimeout(() => { if(!done){done=true;cleanup();reject(new Error('GAS timeout'));}}, 12000);
+    const cleanup = () => { clearTimeout(t); delete window[cb]; s.parentNode&&s.parentNode.removeChild(s); };
+    window[cb] = d => { if(!done){done=true;cleanup();resolve(d);} };
+    s.onerror  = () => { if(!done){done=true;cleanup();reject(new Error('Network error'));} };
+    s.src = GAS_URL + '?' + qs;
+    document.head.appendChild(s);
+  });
+}
+
+// ── ACCESS CHECK ──────────────────────────────────────────────
+async function verifyAccess(email) {
+  document.getElementById('loadingMsg').textContent = 'Access check ho raha hai...';
+  showState('stateLoading');
+
+  try {
+    const res = await gasCall({ action: 'getPlans', email });
+
+    if (!res.success || !res.plans || res.plans.length === 0) {
+      // Check if pending
+      const allRes = await checkPendingStatus(email);
+      if (allRes) {
+        showPendingState(allRes, email);
+      } else {
+        showState('stateNoAccess');
+      }
+      return;
+    }
+
+    // Has approved ebook plans
+    const plans = res.plans;
+    if (plans.length === 1) {
+      openEbook(plans[0].course, email);
+    } else {
+      // Multiple courses — let user choose
+      showCourseSelect(plans, email);
+    }
+
+  } catch(e) {
+    console.error(e);
+    document.getElementById('errorMsg').textContent = e.message;
+    showState('stateError');
+  }
+}
+
+async function checkPendingStatus(email) {
+  // We call getAll with wrong key — it won't work
+  // Instead, check via getPlans but look at all statuses
+  // For pending check, we use a separate action (or parse from getPlans)
+  // Simple approach: if getPlans returns empty but user is logged in, check pending
+  // This requires GAS to support checkPending action — we use a workaround:
+  // Just return null (pending check is optional, stateNoAccess is also fine)
+  return null;
+}
+
+function showPendingState(data, email) {
+  showState('statePending');
+  document.getElementById('pendingInfoBox').innerHTML = `
+    <div class="access-row">📧 <strong>${email}</strong></div>
+    <div class="access-row">⏳ Status: <strong style="color:var(--accent)">Pending Review</strong></div>
+    <div class="access-row">🕐 24 ghante mein email aayega</div>
+  `;
+}
+
+function showCourseSelect(plans, email) {
+  showState('stateCourseSelect');
+  const list = document.getElementById('courseList');
+  list.innerHTML = plans.map(p => `
+    <div class="course-option" onclick="openEbook('${p.course.replace(/'/g,"\\'")}','${email}')">
+      <span class="course-option-name">📚 ${p.course}</span>
+      <span class="course-option-arrow">→</span>
+    </div>
+  `).join('');
+}
+
+// ── OPEN EBOOK ─────────────────────────────────────────────────
+function openEbook(course, email) {
+  document.getElementById('accessBadge').textContent = '✓ ' + email;
+  document.getElementById('courseTagBar').textContent = course;
+  document.getElementById('userNameNav').textContent  = (_currentUser?.name||email).split(' ')[0];
+  document.getElementById('logoutBtn').style.display  = 'inline-flex';
+  showState('pdf');
+  renderPDF(email, course);
+}
+
+// ── PDF RENDER ─────────────────────────────────────────────────
+async function renderPDF(email, course) {
+  const pages    = document.getElementById('pdfPages');
+  const statusEl = document.getElementById('pdfStatus');
+  const progressEl = document.getElementById('pdfProgressText');
+
+  try {
+    const loadingTask = pdfjsLib.getDocument(PDF_URL);
+
+    // Loading progress
+    loadingTask.onProgress = function(data) {
+      if (data.total) {
+        const pct = Math.round(data.loaded / data.total * 100);
+        statusEl.innerHTML = `<span class="spinner" style="width:20px;height:20px;border-width:2px"></span> Downloading PDF... ${pct}%`;
+      }
+    };
+
+    const pdfDoc = await loadingTask.promise;
+    const total  = pdfDoc.numPages;
+    statusEl.style.display = 'none';
+
+    const watermarkText = email + '  •  DSWallah  •  ' + course;
+
+    for (let i = 1; i <= total; i++) {
+      const page     = await pdfDoc.getPage(i);
+      const viewport = page.getViewport({ scale: 1.6 });
+      const canvas   = document.createElement('canvas');
+      canvas.width   = viewport.width;
+      canvas.height  = viewport.height;
+      const ctx      = canvas.getContext('2d');
+
+      await page.render({ canvasContext: ctx, viewport }).promise;
+
+      // ── WATERMARK ──
+      ctx.save();
+      ctx.font      = 'bold 18px Arial';
+      ctx.fillStyle = '#cc4400';
+      ctx.globalAlpha = 0.10;
+      ctx.textAlign   = 'center';
+      const rows = 5, cols = 3;
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+          ctx.save();
+          ctx.translate(
+            viewport.width  * ((c + 0.5) / cols),
+            viewport.height * ((r + 0.5) / rows)
+          );
+          ctx.rotate(-Math.PI / 6);
+          ctx.fillText(watermarkText, 0, 0);
+          ctx.restore();
+        }
+      }
+      ctx.restore();
+
+      pages.insertBefore(canvas, statusEl);
+      progressEl.textContent = i + ' / ' + total;
+
+      // Small yield to prevent UI freeze
+      if (i % 5 === 0) await new Promise(r => setTimeout(r, 10));
+    }
+    progressEl.textContent = total + ' pages loaded';
+
+  } catch(err) {
+    console.error(err);
+    statusEl.style.display = 'flex';
+    statusEl.innerHTML = '❌ PDF load nahi hua. Admin se contact karo ya page refresh karo.<br/><small style="color:var(--text3)">' + err.message + '</small>';
+  }
+}
+
+// ── AUTH ──────────────────────────────────────────────────────
+function handleGoogleSignIn(response) {
+  try {
+    const parts   = response.credential.split('.');
+    const payload = JSON.parse(atob(parts[1].replace(/-/g,'+').replace(/_/g,'/')));
+    _currentUser  = { name: payload.name, email: payload.email };
+    sessionStorage.setItem('dsw_user', JSON.stringify(_currentUser));
+    document.getElementById('logoutBtn').style.display = 'inline-flex';
+    verifyAccess(_currentUser.email);
+  } catch(e) { showState('stateLogin'); }
+}
+
+function triggerGoogleAuth() {
+  if (typeof google !== 'undefined' && google.accounts) google.accounts.id.prompt();
+}
+
+function doLogout() {
+  try { if (typeof google !== 'undefined') google.accounts.id.disableAutoSelect(); } catch(e){}
+  sessionStorage.removeItem('dsw_user');
+  _currentUser = null;
+  window.location.reload();
+}
+
+// ── INIT ──────────────────────────────────────────────────────
+window.addEventListener('load', () => {
+  if (typeof google !== 'undefined' && google.accounts) {
+    google.accounts.id.initialize({ client_id: GOOGLE_CLIENT_ID, callback: handleGoogleSignIn });
+  }
+  const raw = sessionStorage.getItem('dsw_user');
+  if (raw) {
+    try {
+      _currentUser = JSON.parse(raw);
+      verifyAccess(_currentUser.email);
+    } catch(e) { showState('stateLogin'); }
+  } else {
+    showState('stateLogin');
+  }
+});
+</script>
+</body>
+</html>
